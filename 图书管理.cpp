@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-//ÊıÄ¿½á¹¹ÌåÊı×é
-//Ñ§ÉúĞÅÏ¢Á´±í 
+//æ•°ç›®ç»“æ„ä½“æ•°ç»„
+//å­¦ç”Ÿä¿¡æ¯é“¾è¡¨ 
 struct tushu{
 	char number[200];
 	char name [200];
@@ -14,54 +14,64 @@ struct xuesheng{
 	char book[200];
 	struct xuesheng *next;
 };
-//¶¨Òåº¯Êı 
+//å®šä¹‰å‡½æ•° 
 //
 int  guanliduan();
 int  xueshengduan();
 void search(struct tushu *q,FILE *fp);
 int  chooseidentity ();
-char* borrow(struct xuesheng *p,FILE *fp);
+char* borrow(struct xuesheng *p,FILE *fp,char num[200]);
 void printlist(struct xuesheng *p,FILE *fp);
 void addbook(struct tushu *q,FILE *fp);
 void del(struct tushu *q,FILE *fp,char del[100]) ;
 void reback(struct xuesheng *p,FILE *fp,char del[200]);
 void rebook(struct tushu *q,FILE *fp);
 char* jieyue(struct tushu *q,FILE *fp,char name[200]); 
-//Ö÷º¯Êı 
+void yanzheng(struct tushu *q,FILE *ft,char num[200]);
+//ä¸»å‡½æ•° 
 int main ()
 {	
     struct tushu  *q;
 	struct xuesheng *p;
 	p=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 	q=(struct tushu*)malloc(sizeof(struct tushu));
-	 //¶¨ÒåÑ§Éú½èÔÄĞÅÏ¢Á´±í+Í¼ÊéÊéÄ¿ 
+	 //å®šä¹‰å­¦ç”Ÿå€Ÿé˜…ä¿¡æ¯é“¾è¡¨+å›¾ä¹¦ä¹¦ç›® 
 	FILE *fx,*ft;
 	
 	start4:
 	int choose=chooseidentity();
-	//Ñ§Éú²Ù×÷ 
+	//å­¦ç”Ÿæ“ä½œ 
 	if(choose==1){                 
 	int n=xueshengduan();	
 	if(n==1){
 		char sousuo[200];
+		printf("                  è¯·è¾“å…¥éœ€è¦æ£€ç´¢çš„å›¾ä¹¦åç§°:");
 		gets(sousuo);
 		jieyue(q,ft,sousuo);
+		printf("\n\n");
+		printf("                  è¯·è¾“å…¥éœ€è¦å€Ÿé˜…çš„å›¾ä¹¦ç¼–å·::");
+		char num [200];
+		gets(num);
+		borrow(p,fx,num);
+		del(q,ft,num);
 		printf("\n\n\n\n");
-		printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+		printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
+		getchar();
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
 		}
 	}
-	else if(n==2){
+	/*else if(n==2){
 		char *delbook;
-		delbook=borrow(p,fx);//·µ»ØÊéÄ¿Ãû³Æ
+	//	delbook=borrow(p,fx);//è¿”å›ä¹¦ç›®åç§°
 		char *num;
-		num=jieyue(q,ft,delbook);//ËÑË÷Í¼Êé 
+		num=jieyue(q,ft,delbook);//æœç´¢å›¾ä¹¦ 
+		borrow(p,fx);
 	    del(q,ft,num);
 	    printf("\n\n\n\n");
-	    printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+	    printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
 	    char select[100];
 	    getchar();
 	    gets(select);
@@ -69,14 +79,18 @@ int main ()
 			goto start4;
 		}
 	}
+	*/
 	else if(n==3){
 		char del[200]; 
-		printf("             ÄúµÄĞÕÃûÊÇ£º"); 
+		printf("             æ‚¨çš„å§“åæ˜¯ï¼š"); 
 		scanf("%s",del);
-		reback(p,fx,del);
+		printf("          éœ€è¦å½’è¿˜çš„å›¾ä¹¦ç¼–å·ä¸ºï¼š");
+		char backnum[200];
+		gets(backnum); 
+		reback(p,fx,backnum);
 		rebook(q,ft); 
 		printf("\n\n\n\n");
-		printf("                    ÍË ³ö Çë Êä Èë 0 !\n");
+		printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n");
 	    char select[100];
 	    getchar();
 	    gets(select);
@@ -91,13 +105,13 @@ int main ()
 }
 
 
-	 //½ÌÊ¦²Ù×÷ 
+	 //æ•™å¸ˆæ“ä½œ 
 	else if (choose==0){
 	int m=guanliduan();
 	if(m==1){
 		search(q,ft);
 		printf("\n\n\n\n");
-		printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+		printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
@@ -109,7 +123,7 @@ int main ()
 	{
 		addbook(q,ft);
 		printf("\n\n\n\n");
-	    printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+	    printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
 	    char select[100];
 	    getchar();
 	    gets(select);
@@ -120,11 +134,11 @@ int main ()
 	else if(m==3)
 	{
 		char delnum[200];
-		printf("                    ÇëÊäÈëÉ¾³ıµÄÊéÄ¿±àºÅ:");  
+		printf("                    è¯·è¾“å…¥åˆ é™¤çš„ä¹¦ç›®ç¼–å·:");  
 		gets(delnum);
 		del(q,ft,delnum);
 		printf("\n\n\n\n");
-		printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+		printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
@@ -135,7 +149,7 @@ int main ()
 	{
 		printlist(p,fx);
 		printf("\n\n\n\n");
-		printf("                    ÍË ³ö Çë Êä Èë 0 !\n"); 
+		printf("                    é€€ å‡º è¯· è¾“ å…¥ 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
@@ -148,94 +162,94 @@ int main ()
 	}	
 }
      else if(choose==-1){
-     	printf("****************************»¶ Ó­ ÏÂ ´Î Ê¹ ÓÃ £¡****************************"); 
+     	printf("****************************æ¬¢ è¿ ä¸‹ æ¬¡ ä½¿ ç”¨ ï¼****************************"); 
      	return 0;
 	 }
 
 
 	return 0;
 }
-//                                              ¹ÜÀí¹ÜÀí 
+//                                              ç®¡ç†ç®¡ç† 
 int  guanliduan()
 {
 	start3: 
-	printf("                    1.²éÑ¯Í¼Êé\n"); 
-	printf("                    2.Ôö¼ÓÍ¼Êé\n"); 
-	printf("                    3.É¾³ıÍ¼Êé\n"); 
-	printf("                    4.²éÑ¯½èÔÄ¼ÇÂ¼\n"); 
-	printf("                    5.ÍË³ö\n"); 
+	printf("                    1.æŸ¥è¯¢å›¾ä¹¦\n"); 
+	printf("                    2.å¢åŠ å›¾ä¹¦\n"); 
+	printf("                    3.åˆ é™¤å›¾ä¹¦\n"); 
+	printf("                    4.æŸ¥è¯¢å€Ÿé˜…è®°å½•\n"); 
+	printf("                    5.é€€å‡º\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='1'){
-			printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª²éÑ¯Í¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n"); 
+			printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”æŸ¥è¯¢å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n"); 
 			return 1; 
 	}
 	else if(n[0]=='2'){
-	        printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ªÔö¼ÓÍ¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n");
+	        printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”å¢åŠ å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n");
 	        return 2;
 	}
 	else if(n[0]=='3'){
-		    printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ªÉ¾³ıÍ¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n"); 
+		    printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”åˆ é™¤å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n"); 
 		    return 3;
 	}
 	else if (n[0]=='4'){
-		    printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª²éÑ¯½èÔÄ¼ÇÂ¼¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n");
+		    printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”æŸ¥è¯¢å€Ÿé˜…è®°å½•â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n");
 			return 4; 
 	}
 	else if(n[0]=='5'){
 	        return 5;
 	}
 	else {
-		printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ªÇëÖØĞÂÊäÈë¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n") ;
+		printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”è¯·é‡æ–°è¾“å…¥â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n") ;
 		goto start3; 
 	}
 	 
 }
-//                                Ñ§ÉúÑ§Éú£¡£¡£¡£¡ 
+//                                å­¦ç”Ÿå­¦ç”Ÿï¼ï¼ï¼ï¼ 
 int  xueshengduan()
 {
 	start1:
-	printf("                    1.²éÑ¯Í¼Êé\n"); 
-	printf("                    2.½èÔÄÍ¼Êé\n");
-	printf("                    3.¹é»¹Í¼Êé\n");
-	printf("                    4.ÍË³ö\n"); 
+	printf("                    1.æŸ¥è¯¢å›¾ä¹¦\n"); 
+	printf("                    2.å€Ÿé˜…å›¾ä¹¦\n");
+	printf("                    3.å½’è¿˜å›¾ä¹¦\n");
+	printf("                    4.é€€å‡º\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='1'){
-		printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª²éÑ¯Í¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n");
+		printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”æŸ¥è¯¢å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n");
 		return 1;
 	}
 	else if(n[0]=='2'){
-		printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª½èÔÄÍ¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n"); 
+		printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”å€Ÿé˜…å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n"); 
 		return 2; 
 	}
 	else if(n[0]=='3'){
-		printf("¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¹é»¹Í¼Êé¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n");
+		printf("â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”å½’è¿˜å›¾ä¹¦â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n");
 		return 3;
 	}
 	else if(n[0]=='4'){
 		return 4;
 	}
 	 else {
-	 	printf("                              ÇëÖØĞÂÊäÈë£¡\n\n");
+	 	printf("                              è¯·é‡æ–°è¾“å…¥ï¼\n\n");
 	 	goto start1;
 	 }
  }
  int  chooseidentity ()
 {
 	char se[100]={"exit"};
-	printf(          "********************»¶ Ó­ À´ µ½ Í¼ Êé ½è ÔÄ ¹Ü Àí Ïµ Í³********************\n\n");
+	printf(          "********************æ¬¢ è¿ æ¥ åˆ° å›¾ ä¹¦ å€Ÿ é˜… ç®¡ ç† ç³» ç»Ÿ********************\n\n");
 	char choose[200];
 start2:
-	printf("            ½èÔÄÈËÔ±ÇëÊäÈëa,¹ÜÀíÈËÔ±ÇëÊäÈëb (°´Ê×Î»×Ö·û½øĞĞÑ¡Ôñ)      \n\n"); 
-	printf("                             ----ÍË³öÇëÊäÈëexit---\n");
+	printf("            å€Ÿé˜…äººå‘˜è¯·è¾“å…¥a,ç®¡ç†äººå‘˜è¯·è¾“å…¥b (æŒ‰é¦–ä½å­—ç¬¦è¿›è¡Œé€‰æ‹©)      \n\n"); 
+	printf("                             ----é€€å‡ºè¯·è¾“å…¥exit---\n");
    gets(choose); 
    if(choose[0]=='a'){
-   	printf("                ÄúµÄÉí·İÎª¡°½èÔÄÈËÔ±¡±\n");          //Ñ§Éú¶Ë
+   	printf("                æ‚¨çš„èº«ä»½ä¸ºâ€œå€Ÿé˜…äººå‘˜â€\n");          //å­¦ç”Ÿç«¯
    	return 1;
    }
    else if(choose[0]=='b'){
-   	printf("                ÄúµÄÉí·İÎª¡°¹ÜÀíÈËÔ±¡±\n");
+   	printf("                æ‚¨çš„èº«ä»½ä¸ºâ€œç®¡ç†äººå‘˜â€\n");
    	return 0; 
    }
    else if(strcmp(choose,se)==0)
@@ -243,83 +257,67 @@ start2:
    	return -1;
    }
    else {
-   	printf("                              ÇëÖØĞÂÊäÈë£¡\n\n"); 
+   	printf("                              è¯·é‡æ–°è¾“å…¥ï¼\n\n"); 
    	goto start2;
    }
 } 
-char*  borrow(struct xuesheng *p,FILE *fp)
+char*  borrow(struct xuesheng *p,FILE *fp,char num[200])
 {
-	static char ret[200];
-	fp=fopen("C:\\Users\\1\\Desktop\\Ñ§ÉúĞÅÏ¢.txt","a");
-	struct xuesheng *s,*n;
-	char judge[20];
-	n=p;
-	printf("                  ÊÇ·ñ½øĞĞ½èÔÄ£¿(°´y¼ÌĞø½èÔÄ£¬ÆäËûÈÎÒâ¼üÍË³ö)\n"); 
-	while(scanf("%s",&judge),judge[0]=='y') 
-	{
-		s=(struct xuesheng*)malloc(sizeof (struct xuesheng));
-		printf("                ÇëÊäÈë½èÔÄÈËĞÕÃû£º\n"); 
-		scanf("%s",&s->name);
-		fprintf(fp,"%s   ",s->name);
-		printf("                ÇëÊäÈë½èÔÄÊéÄ¿£º\n");
-		scanf("%s",&s->book);
-		fprintf(fp,"%s",s->book);
-		strcpy(ret,s->book);
+	fp=fopen("C:\\Users\\1\\Desktop\\å­¦ç”Ÿä¿¡æ¯.txt","a");
+		printf("                è¯·è¾“å…¥å€Ÿé˜…äººå§“åï¼š\n"); 
+		char name[200];
+		scanf("%s",name);
+		fprintf(fp,"%s   ",name);
+		fprintf(fp,"%s",num);
 		fprintf(fp,"\n");
-		n->next=s;
-		n=s;
-			printf("                  ÊÇ·ñ½øĞĞ½èÔÄ£¿(°´y¼ÌĞø½èÔÄ£¬ÆäËûÈÎÒâ¼üÍË³ö)\n"); 
-		}
-	n->next=NULL;
 	fclose(fp);
-	return ret;
 }
 void printlist( struct xuesheng *p,FILE *fp)
 {
 	struct xuesheng *s;
-	fp=fopen("C:\\Users\\1\\Desktop\\Ñ§ÉúĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å­¦ç”Ÿä¿¡æ¯.txt","r+");
 	char end;
 	char tidai[200];
 	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 		
 	while(end=fscanf(fp,"%s %s",&s->name,&s->book),end!=EOF)
 	{
-     	printf("             ½èÔÄÈË£º%s",s->name);
-		printf("  ½èÔÄÊéÄ¿£º%s\n",s->book); 	
+     	printf("             å€Ÿé˜…äººï¼š%s",s->name);
+		printf("   å€Ÿé˜…ä¹¦ç±ç¼–å·ï¼š%s\n",s->book); 	
 	 } 
 }
 void addbook(struct tushu *q,FILE *fp)
 {
 	struct tushu *n,*s;
 	n=q;
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","a");
-	printf("             ÇëÊäÈëÍ¼ÊéĞÅÏ¢\n");
-	printf("        ÊäÈë¡°ok¡±Í£Ö¹ÊäÈë£¬ÊÇ·ñ¼ÌĞøÊäÈë£¿\n");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","a");
+	printf("             è¯·è¾“å…¥å›¾ä¹¦ä¿¡æ¯\n");
+	printf("        è¾“å…¥â€œokâ€åœæ­¢è¾“å…¥ï¼Œæ˜¯å¦ç»§ç»­è¾“å…¥ï¼Ÿ\n");
 	char a[200]; 
 	int i=0;
 	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
 	{
 		s=(struct tushu*)malloc(sizeof(struct tushu));
-		printf("                 Í¼ÊéÃû³ÆÎª£º");
+		printf("                 å›¾ä¹¦åç§°ä¸ºï¼š");
 		scanf("%s",s->name);
 		fprintf(fp,"%s ",s->name);
-		printf("                 ×÷ÕßÎª£º");
+		printf("                 ä½œè€…ä¸ºï¼š");
 		scanf("%s",s->writer);
 		fprintf(fp,"%s ",s->writer);
-		printf("                 Í¼Êé±àºÅÎª£º"); 
+		printf("                 å›¾ä¹¦ç¼–å·ä¸ºï¼š"); 
 		scanf("%s",s->number);
 		fprintf(fp,"%s",s->number); 
 		fprintf(fp,"\n");
 		n->next=s;
 		n=s;
-		printf("       ÊäÈë¡°ok¡±Í£Ö¹ÊäÈë£¬ÊÇ·ñ¼ÌĞøÊäÈë£¿\n");
+		printf("       è¾“å…¥â€œokâ€åœæ­¢è¾“å…¥ï¼Œæ˜¯å¦ç»§ç»­è¾“å…¥ï¼Ÿ\n");
 	}
 	n->next=NULL;
 		fclose(fp);
 }
 void del(struct tushu *q,FILE *fp,char del[200]) 
 {
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","r+");
 	struct tushu *n,*s,*m;
 	char end,find[200];
 	if(strcmp(q->number,del)==0){
@@ -336,9 +334,9 @@ void del(struct tushu *q,FILE *fp,char del[200])
 	}
 	n->next=NULL;
 	m=q->next;
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","w");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","w");
 	fclose(fp); 
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","r+");
 	while(m!=NULL)
 	{
 	    fprintf(fp,"%s %s %s\n",m->name,m->writer,m->number);
@@ -348,12 +346,12 @@ fclose(fp);
 }
 void search(struct tushu *q,FILE *fp)
 {
-		fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","r+");
+		fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","r+");
 	struct tushu *n,*s;
 	n=q;
 	s=q->next;
 	char end;
-	printf("ÊéÃû        ×÷Õß        ±àºÅ\n"); 
+	printf("ä¹¦å        ä½œè€…        ç¼–å·\n"); 
 	s=(struct tushu*)malloc(sizeof(struct tushu));
 	while(end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 		printf("%-10s %-10s %-10s\n",s->name,s->writer,s->number);
@@ -365,7 +363,7 @@ void search(struct tushu *q,FILE *fp)
 }
 void reback(struct xuesheng *p,FILE *fp,char del[200])
 {
-	fp=fopen("C:\\Users\\1\\Desktop\\Ñ§ÉúĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å­¦ç”Ÿä¿¡æ¯.txt","r+");
 	struct xuesheng *n,*s,*m;
 	char end,find[200];
 	if(strcmp(p->name,del)==0){
@@ -375,15 +373,15 @@ void reback(struct xuesheng *p,FILE *fp,char del[200])
 	m=p;
 	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 	while(end=fscanf(fp,"%s %s",&s->name,s->book),end!=EOF){
-		if(strcmp(s->name,del)!=0){
+		if(strcmp(s->book,del)!=0){
 		n->next=s;
 		n=s;
 		}else s->next=NULL;
 	}
 	n->next=NULL;
 	m=m->next;
-	fp=fopen("C:\\Users\\1\\Desktop\\Ñ§ÉúĞÅÏ¢.txt","w");
-	fp=fopen("C:\\Users\\1\\Desktop\\Ñ§ÉúĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å­¦ç”Ÿä¿¡æ¯.txt","w");
+	fp=fopen("C:\\Users\\1\\Desktop\\å­¦ç”Ÿä¿¡æ¯.txt","r+");
 	while(m!=NULL)
 	{
 	    fprintf(fp,"%s %s\n",m->name,m->book);
@@ -396,29 +394,29 @@ void rebook(struct tushu *q,FILE *fp)
 {
 	struct tushu *n,*s;
 	n=q;
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","a");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","a");
 
 	char a[200]; 
 	int i=0;
-	printf("       ¹é»¹½áÊøÊäÈë¡°ok¡±£¬ÊÇ·ñ»¹ÓĞÍ¼ÊéĞèÒª¹é»¹£¿\n");
+	printf("       å½’è¿˜ç»“æŸè¾“å…¥â€œokâ€ï¼Œæ˜¯å¦è¿˜æœ‰å›¾ä¹¦éœ€è¦å½’è¿˜ï¼Ÿ\n");
 	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
 	{
 		printf("");
 		s=(struct tushu*)malloc(sizeof(struct tushu));
-		printf("                 ÇëÊäÈëÍ¼ÊéĞÅÏ¢  \n") ;
-		printf("                 Í¼ÊéÃû³ÆÎª£º");
+		printf("                 è¯·è¾“å…¥å›¾ä¹¦ä¿¡æ¯  \n") ;
+		printf("                 å›¾ä¹¦åç§°ä¸ºï¼š");
 		scanf("%s",s->name);
 		fprintf(fp,"%s ",s->name);
-		printf("                 ×÷ÕßÎª£º");
+		printf("                 ä½œè€…ä¸ºï¼š");
 		scanf("%s",s->writer);
 		fprintf(fp,"%s ",s->writer);
-		printf("                 Í¼Êé±àºÅÎª£º"); 
+		printf("                 å›¾ä¹¦ç¼–å·ä¸ºï¼š"); 
 		scanf("%s",s->number);
 		fprintf(fp,"%s",s->number); 
 		fprintf(fp,"\n");
 		n->next=s;
 		n=s;
-		printf("       ¹é»¹½áÊøÊäÈë¡°ok¡±£¬ÊÇ·ñ»¹ÓĞÍ¼ÊéĞèÒª¹é»¹£¿\n");
+		printf("       å½’è¿˜ç»“æŸè¾“å…¥â€œokâ€ï¼Œæ˜¯å¦è¿˜æœ‰å›¾ä¹¦éœ€è¦å½’è¿˜ï¼Ÿ\n");
 	}
 	n->next=NULL;
 		fclose(fp);
@@ -426,12 +424,12 @@ void rebook(struct tushu *q,FILE *fp)
 char *jieyue(struct tushu *q,FILE *fp,char name[200])
 {
 	static char re[200];
-	fp=fopen("C:\\Users\\1\\Desktop\\Í¼ÊéĞÅÏ¢.txt","r+");
+	fp=fopen("C:\\Users\\1\\Desktop\\å›¾ä¹¦ä¿¡æ¯.txt","r+");
 	struct tushu *n,*s;
 	n=q;
 	s=q->next;
 	char end;
-	printf("ÊéÃû        ×÷Õß        ±àºÅ\n"); 
+	printf("ä¹¦å        ä½œè€…        ç¼–å·\n"); 
 	s=(struct tushu*)malloc(sizeof(struct tushu));
 	while(end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 		if(strcmp(s->name,name)==0){
@@ -444,8 +442,12 @@ char *jieyue(struct tushu *q,FILE *fp,char name[200])
 	n->next=NULL;
 	fclose (fp);
 }
-
-
+void yanzheng(struct tushu *q,FILE *ft,char num[200])
+{
+	ft=fopen("C:\\Users\\1\\Desktop\\å€Ÿé˜…ä¿¡æ¯.txt","r+");
+	fprintf(ft,"%s",num);
+	fclose (ft);
+ } 
 
 
 

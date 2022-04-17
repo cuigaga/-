@@ -1,3 +1,4 @@
+   
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -28,6 +29,7 @@ void reback(struct xuesheng *p,FILE *fp,char del[200]);
 void rebook(struct tushu *q,FILE *fp);
 char* jieyue(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct tushu *q,FILE *ft,char num[200]);
+int judge(FILE *ft ,char num[200]);
 //主函数 
 int main ()
 {	
@@ -53,6 +55,7 @@ int main ()
 		char num [200];
 		gets(num);
 		borrow(p,fx,num);
+		yanzheng(q,ft,num);
 		del(q,ft,num);
 		printf("\n\n\n\n");
 		printf("                    退 出 请 输 入 0 !\n"); 
@@ -86,18 +89,22 @@ int main ()
 		scanf("%s",del);
 		printf("          需要归还的图书编号为：");
 		char backnum[200];
+		getchar();
 		gets(backnum); 
+		int n=0;
+		n=judge(ft,backnum); 
+		if(n==1){
 		reback(p,fx,backnum);
 		rebook(q,ft); 
 		printf("\n\n\n\n");
-		printf("                    退 出 请 输 入 0 !\n");
-	    char select[100];
+	}
+	printf("                    退 出 请 输 入 0 !\n");
+	 char select[100];
 	    getchar();
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
 		}
-		
 	}
 	else if(n==4){
 	goto start4;
@@ -448,15 +455,20 @@ void yanzheng(struct tushu *q,FILE *ft,char num[200])
 	fprintf(ft,"%s",num);
 	fclose (ft);
  } 
-
-
-
-
-
-
-
-
-
-
-
-
+int judge(FILE *ft ,char num[200])
+{
+	ft=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
+	char a[200],end;
+	int c=0;
+	while(end=fscanf(ft,"%s",a),end!=EOF)
+	{
+		if(strcmp(a,num)==0)
+		{
+			c++;
+		}
+	}
+	if(c==0){
+		return -1;
+	}
+	else return 1;
+}

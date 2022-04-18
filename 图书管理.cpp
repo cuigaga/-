@@ -4,6 +4,10 @@
 #include<string.h>
 //数目结构体数组
 //学生信息链表 
+struct jieyue{
+	char num[200];
+	struct jieyue *next;
+}; 
 struct tushu{
 	char number[200];
 	char name [200];
@@ -30,10 +34,12 @@ void rebook(struct tushu *q,FILE *fp);
 char* jieyue(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct tushu *q,FILE *ft,char num[200]);
 int judge(FILE *ft ,char num[200]);
+void delnum(struct jieyue *l,FILE *fp,char del[200]);
 //主函数 
 int main ()
 {	
     struct tushu  *q;
+    struct jieyue *l;
 	struct xuesheng *p;
 	p=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 	q=(struct tushu*)malloc(sizeof(struct tushu));
@@ -96,6 +102,7 @@ int main ()
 		if(n==1){
 		reback(p,fx,backnum);
 		rebook(q,ft); 
+		delnum(l,ft,backnum);
 		printf("\n\n\n\n");
 	}
 	printf("                    退 出 请 输 入 0 !\n");
@@ -327,9 +334,9 @@ void del(struct tushu *q,FILE *fp,char del[200])
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
 	struct tushu *n,*s,*m;
 	char end,find[200];
-	if(strcmp(q->number,del)==0){
-		q=q->next;
-	} 
+	//if(strcmp(q->number,del)==0){
+	//	q=q->next;
+	//} 
 	n=q;
 	while(s=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 	
@@ -373,9 +380,9 @@ void reback(struct xuesheng *p,FILE *fp,char del[200])
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	struct xuesheng *n,*s,*m;
 	char end,find[200];
-	if(strcmp(p->name,del)==0){
-		p=p->next;
-	} 
+//	if(strcmp(p->name,del)==0){
+//		p=p->next;
+//	} 
 	n=p;
 	m=p;
 	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
@@ -471,4 +478,32 @@ int judge(FILE *ft ,char num[200])
 		return -1;
 	}
 	else return 1;
+}
+void delnum(struct jieyue *l,FILE *fp,char del[200]) 
+{
+	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
+	struct jieyue *n,*s,*m;
+	char end,find[200];
+	//if(strcmp(l->num,del)==0){
+	//	l=l->next;
+	//} 
+	n=l;
+	while(s=(struct jieyue*)malloc(sizeof(struct jieyue)),end=fscanf(fp,"%s",s->num),end!=EOF){
+	
+		if(strcmp(s->num,del)!=0){
+		n->next=s;
+		n=s;
+		}
+	}
+	n->next=NULL;
+	m=l->next;
+	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","w");
+	fclose(fp); 
+	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
+	while(m!=NULL)
+	{
+	    fprintf(fp,"%s\n",m->num);
+		m=m->next;
+	}
+fclose(fp);
 }

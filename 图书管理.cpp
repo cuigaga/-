@@ -1,4 +1,3 @@
-   
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -6,6 +5,7 @@
 //学生信息链表 
 struct jieyue{
 	char num[200];
+	char name[200]; 
 	struct jieyue *next;
 }; 
 struct tushu{
@@ -28,19 +28,20 @@ int  chooseidentity ();
 char* borrow(struct xuesheng *p,FILE *fp,char num[200]);
 void printlist(struct xuesheng *p,FILE *fp);
 void addbook(struct tushu *q,FILE *fp);
-void del(struct tushu *q,FILE *fp,char del[100]) ;
+char *del(struct tushu *q,FILE *fp,char del[100],char find[200]) ;
 void reback(struct xuesheng *p,FILE *fp,char del[200]);
 void rebook(struct tushu *q,FILE *fp);
-char* jieyue(struct tushu *q,FILE *fp,char name[200]); 
-void yanzheng(struct tushu *q,FILE *ft,char num[200]);
-int judge(FILE *ft ,char num[200]);
-void delnum(struct jieyue *l,FILE *fp,char del[200]);
+char* jie(struct tushu *q,FILE *fp,char name[200]); 
+void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200]);
+int judge(FILE *ft ,char num[200],char name[200]);
+void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200]);
 //主函数 
 int main ()
 {	
     struct tushu  *q;
     struct jieyue *l;
 	struct xuesheng *p;
+	l=(struct jieyue*)malloc(sizeof(struct jieyue));
 	p=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 	q=(struct tushu*)malloc(sizeof(struct tushu));
 	 //定义学生借阅信息链表+图书书目 
@@ -52,17 +53,17 @@ int main ()
 	if(choose==1){                 
 	int n=xueshengduan();	
 	if(n==1){
-		char sousuo[200];
+		char sousuo[200],ret[200];
 		printf("                  请输入需要检索的图书名称:");
 		gets(sousuo);
-		jieyue(q,ft,sousuo);
+		jie(q,ft,sousuo);
 		printf("\n\n");
 		printf("                  请输入需要借阅的图书编号::");
 		char num [200];
 		gets(num);
 		borrow(p,fx,num);
-		yanzheng(q,ft,num);
-		del(q,ft,num);
+		del(q,ft,num,ret);
+		yanzheng(l,ft,num,sousuo);
 		printf("\n\n\n\n");
 		printf("                    退 出 请 输 入 0 !\n"); 
 		getchar();
@@ -72,37 +73,24 @@ int main ()
 			goto start4;
 		}
 	}
-	/*else if(n==2){
-		char *delbook;
-	//	delbook=borrow(p,fx);//返回书目名称
-		char *num;
-		num=jieyue(q,ft,delbook);//搜索图书 
-		borrow(p,fx);
-	    del(q,ft,num);
-	    printf("\n\n\n\n");
-	    printf("                    退 出 请 输 入 0 !\n"); 
-	    char select[100];
-	    getchar();
-	    gets(select);
-		if(select[0]=='0'){
-			goto start4;
-		}
-	}
-	*/
-	else if(n==3){
-		char del[200]; 
+	else if(n==2){
+		
+		char del[200],name[200]; 
 		printf("             您的姓名是："); 
 		scanf("%s",del);
 		printf("          需要归还的图书编号为：");
 		char backnum[200];
 		getchar();
 		gets(backnum); 
+		printf("          需要归还的图书名称为：");
+	//	getchar();
+		gets(name); 
 		int n=0;
-		n=judge(ft,backnum); 
+		n=judge(ft,backnum,name); 
 		if(n==1){
 		reback(p,fx,backnum);
 		rebook(q,ft); 
-		delnum(l,ft,backnum);
+		delnum(l,ft,backnum,name);
 		printf("\n\n\n\n");
 	}
 	printf("                    退 出 请 输 入 0 !\n");
@@ -113,7 +101,7 @@ int main ()
 			goto start4;
 		}
 	}
-	else if(n==4){
+	else if(n==3){
 	goto start4;
 	}
 }
@@ -150,7 +138,10 @@ int main ()
 		char delnum[200];
 		printf("                    请输入删除的书目编号:");  
 		gets(delnum);
-		del(q,ft,delnum);
+		printf("                    请输入删除数目的名称:");
+		char name[200]; 
+		gets(name); 
+		del(q,ft,delnum,name);
 		printf("\n\n\n\n");
 		printf("                    退 出 请 输 入 0 !\n"); 
 		char select[100];
@@ -223,26 +214,21 @@ int  guanliduan()
 int  xueshengduan()
 {
 	start1:
-	printf("                    1.查询图书\n"); 
-	printf("                    2.借阅图书\n");
-	printf("                    3.归还图书\n");
-	printf("                    4.退出\n"); 
+	printf("                    1.借阅图书\n"); 
+	printf("                    2.归还图书\n");
+	printf("                    3.退出\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='1'){
-		printf("————————————查询图书————————————\n");
+		printf("————————————借阅图书————————————\n");
 		return 1;
 	}
 	else if(n[0]=='2'){
-		printf("————————————借阅图书————————————\n"); 
+		printf("————————————归还图书————————————\n"); 
 		return 2; 
 	}
 	else if(n[0]=='3'){
-		printf("————————————归还图书————————————\n");
 		return 3;
-	}
-	else if(n[0]=='4'){
-		return 4;
 	}
 	 else {
 	 	printf("                              请重新输入！\n\n");
@@ -329,14 +315,11 @@ void addbook(struct tushu *q,FILE *fp)
 	n->next=NULL;
 		fclose(fp);
 }
-void del(struct tushu *q,FILE *fp,char del[200]) 
+char* del(struct tushu *q,FILE *fp,char del[200],char find[200]) 
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
 	struct tushu *n,*s,*m;
-	char end,find[200];
-	//if(strcmp(q->number,del)==0){
-	//	q=q->next;
-	//} 
+	char end;
 	n=q;
 	while(s=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 	
@@ -345,6 +328,7 @@ void del(struct tushu *q,FILE *fp,char del[200])
 		n=s;
 		printf("%s %s %s\n",s->name,s->writer,s->number); 
 		}
+		else strcpy(find,s->name);
 	}
 	n->next=NULL;
 	m=q->next;
@@ -357,6 +341,7 @@ void del(struct tushu *q,FILE *fp,char del[200])
 		m=m->next;
 	}
 fclose(fp);
+return find;
 }
 void search(struct tushu *q,FILE *fp)
 {
@@ -379,7 +364,7 @@ void reback(struct xuesheng *p,FILE *fp,char del[200])
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	struct xuesheng *n,*s,*m;
-	char end,find[200];
+	char end;
 //	if(strcmp(p->name,del)==0){
 //		p=p->next;
 //	} 
@@ -409,11 +394,11 @@ void rebook(struct tushu *q,FILE *fp)
 	struct tushu *n,*s;
 	n=q;
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","a");
-
 	char a[200]; 
 	int i=0;
-	printf("       归还结束输入“ok”，是否还有图书需要归还？\n");
-	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
+	a[0]='s';
+	a[1]='s';
+	while(a[0]!='o',a[1]!='k') 
 	{
 		printf("");
 		s=(struct tushu*)malloc(sizeof(struct tushu));
@@ -430,12 +415,13 @@ void rebook(struct tushu *q,FILE *fp)
 		fprintf(fp,"\n");
 		n->next=s;
 		n=s;
-		printf("       归还结束输入“ok”，是否还有图书需要归还？\n");
+		printf("       归还结束输入“ok”\n");
+		scanf("%s",&a);
 	}
 	n->next=NULL;
 		fclose(fp);
 }
-char *jieyue(struct tushu *q,FILE *fp,char name[200])
+char *jie(struct tushu *q,FILE *fp,char name[200])
 {
 	static char re[200];
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
@@ -448,7 +434,6 @@ char *jieyue(struct tushu *q,FILE *fp,char name[200])
 	while(end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 		if(strcmp(s->name,name)==0){
 		printf("%-10s %-10s %-10s\n",s->name,s->writer,s->number);
-	    strcpy(re,s->number);
 	}
 		n->next=s;
 		n=s;
@@ -456,20 +441,21 @@ char *jieyue(struct tushu *q,FILE *fp,char name[200])
 	n->next=NULL;
 	fclose (fp);
 }
-void yanzheng(struct tushu *q,FILE *ft,char num[200])
+void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200])
 {
-	ft=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
-	fprintf(ft,"%s",num);
+	ft=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","a+");
+	fprintf(ft,"%s ",num);
+	fprintf(ft,"%s\n",name);
 	fclose (ft);
  } 
-int judge(FILE *ft ,char num[200])
+int judge(FILE *ft ,char num[200],char name[200])
 {
 	ft=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
-	char a[200],end;
+	char a[200],b[200],end;
 	int c=0;
-	while(end=fscanf(ft,"%s",a),end!=EOF)
+	while(end=fscanf(ft,"%s %s",a,b),end!=EOF)
 	{
-		if(strcmp(a,num)==0)
+		if(strcmp(a,num)==0&&strcmp(b,name)==0)
 		{
 			c++;
 		}
@@ -479,18 +465,17 @@ int judge(FILE *ft ,char num[200])
 	}
 	else return 1;
 }
-void delnum(struct jieyue *l,FILE *fp,char del[200]) 
+void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200]) 
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
 	struct jieyue *n,*s,*m;
-	char end,find[200];
+	char end;
 	//if(strcmp(l->num,del)==0){
 	//	l=l->next;
 	//} 
 	n=l;
-	while(s=(struct jieyue*)malloc(sizeof(struct jieyue)),end=fscanf(fp,"%s",s->num),end!=EOF){
-	
-		if(strcmp(s->num,del)!=0){
+	while(s=(struct jieyue*)malloc(sizeof(struct jieyue)),end=fscanf(fp,"%s %s",s->num,s->name),end!=EOF){
+		if(strcmp(s->num,dell)!=0&&strcmp(s->name,deln)!=0){
 		n->next=s;
 		n=s;
 		}
@@ -498,12 +483,13 @@ void delnum(struct jieyue *l,FILE *fp,char del[200])
 	n->next=NULL;
 	m=l->next;
 	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","w");
-	fclose(fp); 
+	fclose(fp);
 	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
 	while(m!=NULL)
 	{
-	    fprintf(fp,"%s\n",m->num);
+	    fprintf(fp,"%s %s\n",m->num,m->name);
 		m=m->next;
 	}
 fclose(fp);
 }
+ 

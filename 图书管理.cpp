@@ -19,6 +19,11 @@ struct xuesheng{
 	char book[200];
 	struct xuesheng *next;
 };
+struct jiaoshi{
+	char yonghu[200];
+	char password[200];
+	struct jiaoshi *next;
+};
 //定义函数 
 //
 int  guanliduan();
@@ -31,50 +36,72 @@ void addbook(struct tushu *q,FILE *fp);
 char *del(struct tushu *q,FILE *fp,char del[100],char find[200]) ;
 void reback(struct xuesheng *p,FILE *fp,char del[200]);
 void rebook(struct tushu *q,FILE *fp);
-char* jie(struct tushu *q,FILE *fp,char name[200]); 
+int jie(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200]);
 int judge(FILE *ft ,char num[200],char name[200]);
 void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200]);
+void change(struct tushu *p,FILE *ft,char findname[200],char findnum[200]) ;
+int  denglu (struct jiaoshi *j,FILE *fp,char name[200],char pass[200] );
 //主函数 
 int main ()
 {	
     struct tushu  *q;
     struct jieyue *l;
 	struct xuesheng *p;
+	struct jiaoshi *k;
 	l=(struct jieyue*)malloc(sizeof(struct jieyue));
 	p=(struct xuesheng*)malloc(sizeof(struct xuesheng));
 	q=(struct tushu*)malloc(sizeof(struct tushu));
+	k=(struct jiaoshi*)malloc(sizeof(struct jiaoshi));
 	 //定义学生借阅信息链表+图书书目 
-	FILE *fx,*ft;
+	FILE *fx,*ft,*fp;
 	
+	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","a+");
+	fclose (fp);
+	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","a+");
+	fclose (fp);
+	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","a+");
+	fclose (fp);
+	fp=fopen("C:\\Users\\1\\Desktop\\教师信息.txt","a+");
+	fclose(fp);
 	start4:
 	int choose=chooseidentity();
 	//学生操作 
 	if(choose==1){                 
 	int n=xueshengduan();	
 	if(n==1){
+		int judg=0;
 		char sousuo[200],ret[200];
 		printf("                  请输入需要检索的图书名称:");
 		gets(sousuo);
-		jie(q,ft,sousuo);
+		int jud=jie(q,ft,sousuo);
+		if(jud!=-1){
 		printf("\n\n");
-		printf("                  请输入需要借阅的图书编号::");
+		printf("                  请输入需要借阅的图书编号:(取消借阅输入esc)");
 		char num [200];
 		gets(num);
+		if(strcmp(num,"esc")!=0){ 
 		borrow(p,fx,num);
 		del(q,ft,num,ret);
 		yanzheng(l,ft,num,sousuo);
+		judg++;
+	}
+	}
+	else {
+	}printf("\n\n\n                               未查询到图书!!!"); 
 		printf("\n\n\n\n");
-		printf("                    退 出 请 输 入 0 !\n"); 
-		getchar();
+		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
+		if(judg!=0){
+		getchar();
+	}
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
 		}
 	}
 	else if(n==2){
-		
+		int judg=0;
 		char del[200],name[200]; 
 		printf("             您的姓名是："); 
 		scanf("%s",del);
@@ -93,9 +120,11 @@ int main ()
 		delnum(l,ft,backnum,name);
 		printf("\n\n\n\n");
 	}
-	printf("                    退 出 请 输 入 0 !\n");
+	printf("                             退 出 请 输 入 0 !\n");
 	 char select[100];
-	    getchar();
+        if(judg!=0){
+		getchar();
+    	}
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
@@ -109,11 +138,23 @@ int main ()
 
 	 //教师操作 
 	else if (choose==0){
+		printf("                            请输入用户名：");
+		char yong[200];
+		gets(yong);
+		printf("                              请输入密码：");
+		char pass[200];
+		gets(pass); 
+		int pan=denglu(k,fp,yong,pass);
+		if(pan!=1){
+			printf("\n\n\n                         用户名或密码错误！！！\n\n\n\n");
+			goto start4; 
+	}
+	else printf("\n\n                                  登录成功！\n\n\n")	; 
 	int m=guanliduan();
 	if(m==1){
 		search(q,ft);
 		printf("\n\n\n\n");
-		printf("                    退 出 请 输 入 0 !\n"); 
+		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
@@ -125,7 +166,7 @@ int main ()
 	{
 		addbook(q,ft);
 		printf("\n\n\n\n");
-	    printf("                    退 出 请 输 入 0 !\n"); 
+	    printf("                             退 出 请 输 入 0 !\n"); 
 	    char select[100];
 	    getchar();
 	    gets(select);
@@ -135,15 +176,23 @@ int main ()
 	}
 	else if(m==3)
 	{
-		char delnum[200];
-		printf("                    请输入删除的书目编号:");  
-		gets(delnum);
-		printf("                    请输入删除数目的名称:");
+		printf("                    请输入删除书目的名称:(退出请输入esc)");
 		char name[200]; 
 		gets(name); 
+			if(strcmp(name,"esc")!=0){
+		int check=jie(q,ft,name);
+		if(check==-1){
+			printf("\n\n\n                        未找到此图书\n");
+		}else
+		{
+	    char delnum[200];
+		printf("                    请输入删除的书目编号:");  
+		gets(delnum);
 		del(q,ft,delnum,name);
+		}
+}
 		printf("\n\n\n\n");
-		printf("                    退 出 请 输 入 0 !\n"); 
+		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
@@ -152,16 +201,38 @@ int main ()
 	}
 	else if(m==4)
 	{
+		char findname[200];
+		char findnum[200];
+		printf("请输入需要修改的图书名称：");
+		gets(findname);
+		int judg=jie(q,ft,findname); 
+		if(judg!=-1){
+		printf("请输入图书编号：");
+		gets(findnum);
+		change(q,ft,findname,findnum);
+	}
+	 	printf("\n\n\n\n");
+		printf("                             退 出 请 输 入 0 !\n"); 
+		char select[100];
+	    gets(select);
+		if(select[0]=='0'){
+			goto start4;
+		}
+	
+
+}
+	else if(m==5)
+	{
 		printlist(p,fx);
 		printf("\n\n\n\n");
-		printf("                    退 出 请 输 入 0 !\n"); 
+		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
 		}
 	}
-	else if(m==5)
+	else if(m==6)
 	{
 		goto start4;
 	}	
@@ -178,34 +249,39 @@ int main ()
 int  guanliduan()
 {
 	start3: 
-	printf("                    1.查询图书\n"); 
-	printf("                    2.增加图书\n"); 
-	printf("                    3.删除图书\n"); 
-	printf("                    4.查询借阅记录\n"); 
-	printf("                    5.退出\n"); 
+	printf("                            1.查询图书\n"); 
+	printf("                            2.增加图书\n"); 
+	printf("                            3.删除图书\n");
+	printf("                            4.查改图书\n");
+	printf("                            5.查询借阅记录\n"); 
+	printf("                            6.退出\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='1'){
-			printf("————————————查询图书————————————\n"); 
+			printf("——————————————查询图书————————————\n"); 
 			return 1; 
 	}
 	else if(n[0]=='2'){
-	        printf("————————————增加图书————————————\n");
+	        printf("——————————————增加图书————————————\n");
 	        return 2;
 	}
 	else if(n[0]=='3'){
-		    printf("————————————删除图书————————————\n"); 
+		    printf("——————————————删除图书————————————\n"); 
 		    return 3;
 	}
-	else if (n[0]=='4'){
-		    printf("————————————查询借阅记录————————————\n");
-			return 4; 
+	else if(n[0]=='4'){
+		    printf("——————————————查改图书——————————————\n");
+		    return 4;
 	}
-	else if(n[0]=='5'){
-	        return 5;
+	else if (n[0]=='5'){
+		    printf("—————————————查询借阅记录————————————\n");
+			return 5; 
+	}
+	else if(n[0]=='6'){
+	        return 6;
 	}
 	else {
-		printf("————————————请重新输入————————————\n") ;
+		printf("——————————————请重新输入————————————\n") ;
 		goto start3; 
 	}
 	 
@@ -214,24 +290,24 @@ int  guanliduan()
 int  xueshengduan()
 {
 	start1:
-	printf("                    1.借阅图书\n"); 
-	printf("                    2.归还图书\n");
-	printf("                    3.退出\n"); 
+	printf("                            1.借阅图书\n"); 
+	printf("                            2.归还图书\n");
+	printf("                            3.退出\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='1'){
-		printf("————————————借阅图书————————————\n");
+		printf("——————————————借阅图书————————————\n");
 		return 1;
 	}
 	else if(n[0]=='2'){
-		printf("————————————归还图书————————————\n"); 
+		printf("——————————————归还图书————————————\n"); 
 		return 2; 
 	}
 	else if(n[0]=='3'){
 		return 3;
 	}
 	 else {
-	 	printf("                              请重新输入！\n\n");
+	 	printf("                                 请重新输入！\n\n");
 	 	goto start1;
 	 }
  }
@@ -242,14 +318,14 @@ int  xueshengduan()
 	char choose[200];
 start2:
 	printf("            借阅人员请输入a,管理人员请输入b (按首位字符进行选择)      \n\n"); 
-	printf("                             ----退出请输入exit---\n");
+	printf("                        ----退出请输入exit---\n");
    gets(choose); 
-   if(choose[0]=='a'){
-   	printf("                您的身份为“借阅人员”\n");          //学生端
+   if(strcmp(choose,"a")==0){
+   	printf("                        您的身份为“借阅人员”\n");          //学生端
    	return 1;
    }
-   else if(choose[0]=='b'){
-   	printf("                您的身份为“管理人员”\n");
+   else if(strcmp(choose,"b")==0){
+   	printf("                        您的身份为“管理人员”\n");
    	return 0; 
    }
    else if(strcmp(choose,se)==0)
@@ -291,26 +367,26 @@ void addbook(struct tushu *q,FILE *fp)
 	struct tushu *n,*s;
 	n=q;
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","a");
-	printf("             请输入图书信息\n");
-	printf("        输入“ok”停止输入，是否继续输入？\n");
+	printf("                         请输入图书信息\n");
+	printf("               输入“ok”停止输入，是否继续输入？\n");
 	char a[200]; 
 	int i=0;
 	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
 	{
 		s=(struct tushu*)malloc(sizeof(struct tushu));
-		printf("                 图书名称为：");
+		printf("                         图书名称为：");
 		scanf("%s",s->name);
 		fprintf(fp,"%s ",s->name);
-		printf("                 作者为：");
+		printf("                          作者为：");
 		scanf("%s",s->writer);
 		fprintf(fp,"%s ",s->writer);
-		printf("                 图书编号为："); 
+		printf("                        图书编号为："); 
 		scanf("%s",s->number);
 		fprintf(fp,"%s",s->number); 
 		fprintf(fp,"\n");
 		n->next=s;
 		n=s;
-		printf("       输入“ok”停止输入，是否继续输入？\n");
+		printf("               输入“ok”停止输入，是否继续输入？\n");
 	}
 	n->next=NULL;
 		fclose(fp);
@@ -326,7 +402,6 @@ char* del(struct tushu *q,FILE *fp,char del[200],char find[200])
 		if(strcmp(s->number,del)!=0){
 		n->next=s;
 		n=s;
-		printf("%s %s %s\n",s->name,s->writer,s->number); 
 		}
 		else strcpy(find,s->name);
 	}
@@ -365,9 +440,6 @@ void reback(struct xuesheng *p,FILE *fp,char del[200])
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	struct xuesheng *n,*s,*m;
 	char end;
-//	if(strcmp(p->name,del)==0){
-//		p=p->next;
-//	} 
 	n=p;
 	m=p;
 	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
@@ -415,15 +487,16 @@ void rebook(struct tushu *q,FILE *fp)
 		fprintf(fp,"\n");
 		n->next=s;
 		n=s;
-		printf("       归还结束输入“ok”\n");
+		printf("              归还结束输入“ok”\n");
 		scanf("%s",&a);
 	}
 	n->next=NULL;
 		fclose(fp);
 }
-char *jie(struct tushu *q,FILE *fp,char name[200])
+int jie(struct tushu *q,FILE *fp,char name[200])
 {
 	static char re[200];
+	int jud=0; 
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
 	struct tushu *n,*s;
 	n=q;
@@ -434,12 +507,16 @@ char *jie(struct tushu *q,FILE *fp,char name[200])
 	while(end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
 		if(strcmp(s->name,name)==0){
 		printf("%-10s %-10s %-10s\n",s->name,s->writer,s->number);
+		jud++;
 	}
 		n->next=s;
 		n=s;
 	}
 	n->next=NULL;
 	fclose (fp);
+	if(jud==0){
+		return -1;
+	}
 }
 void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200])
 {
@@ -470,9 +547,6 @@ void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200])
 	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","r+");
 	struct jieyue *n,*s,*m;
 	char end;
-	//if(strcmp(l->num,del)==0){
-	//	l=l->next;
-	//} 
 	n=l;
 	while(s=(struct jieyue*)malloc(sizeof(struct jieyue)),end=fscanf(fp,"%s %s",s->num,s->name),end!=EOF){
 		if(strcmp(s->num,dell)!=0&&strcmp(s->name,deln)!=0){
@@ -492,4 +566,52 @@ void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200])
 	}
 fclose(fp);
 }
- 
+void change(struct tushu *p,FILE *ft,char findname[200],char findnum[200]) 
+{
+	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	struct tushu *n,*s,*m;
+	n=p;
+	char end;
+	while(s=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(ft,"%s %s %s",s->name,s->writer,s->number ),end!=EOF){
+		if(strcmp(s->name,findname)==0&&strcmp(s->number,findnum)==0){
+			printf("请输入需要修改的图书信息：\n"); 
+			printf("图书名称为：");
+		    scanf("%s",s->name); 
+		    printf("图书编号为：");
+		    scanf("%s",s->number); 
+		    printf("图书作者为：");
+			scanf("%s",s->writer); 
+		} 
+		n->next=s;
+		n=s;	
+	}
+	n->next=NULL;
+	m=p->next;
+	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","w");
+	fclose(ft);
+	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	while(m!=NULL)
+	{
+	    fprintf(ft,"%s %s %s\n",m->name,m->writer,m->number);
+		m=m->next;
+	}
+	fclose(ft); 
+}
+int  denglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
+{
+	struct jiaoshi *n,*s,*m;
+	fp=fopen("C:\\Users\\1\\Desktop\\教师信息.txt","r+");
+	n=k;
+	char end;
+	while(s=(struct jiaoshi*)malloc(sizeof(struct jiaoshi)),end=fscanf(fp,"%s %s",s->yonghu,s->password),end!=EOF)
+	{
+		if(strcmp(name,s->yonghu)==0&&strcmp(pass,s->password)==0)
+		{
+			return 1;
+		}
+		n->next=s;
+		n=s;
+	}
+	fclose(fp);
+	
+}

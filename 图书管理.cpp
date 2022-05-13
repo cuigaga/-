@@ -34,15 +34,19 @@ int  chooseidentity ();
 char* borrow(struct xuesheng *p,FILE *fp,char num[200]);
 void printlist(struct xuesheng *p,FILE *fp);
 void addbook(struct tushu *q,FILE *fp,FILE *ft);
-char *del(struct tushu *q,FILE *fp,char del[100],char find[200]) ;
-int  reback(struct xuesheng *p,FILE *fp,char del[200],int jude ) ;
+char *del(struct tushu *q,FILE *fp,char del[100],char find[200]);
+int  reback(struct xuesheng *p,FILE *fp,char del[200],int jude );
 void rebook(FILE *fp,FILE *ft,char num[200],char name[200]);
 int jie(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200]);
 int judge(FILE *ft ,char num[200],char name[200]);
 void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200]);
-void change(struct tushu *p,FILE *ft,char findname[200],char findnum[200]) ;
+void change(struct tushu *p,FILE *ft,FILE *fp,char findname[200],char findnum[200]) ;
 int  denglu (struct jiaoshi *j,FILE *fp,char name[200],char pass[200] );
+void findplus (FILE *fp,char find[200]);
+void choosefind(FILE *ft,struct tushu *q);
+int findn(struct tushu *q,FILE *fp,char name[200]);
+char * retname(struct tushu *q,FILE *fp,char name[200],char ret[200]);
 //主函数 
 int main ()
 {	
@@ -57,7 +61,6 @@ int main ()
 	//防止指针报错 
 	 //定义学生借阅信息链表+图书书目 
 	FILE *fx,*ft,*fp;
-	
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","a+");
 	fclose (fp);
 	fp=fopen("C:\\Users\\1\\Desktop\\借阅信息.txt","a+");
@@ -75,12 +78,25 @@ int main ()
 	if(choose==1){                 
 	int n=xueshengduan();	
 	if(n==1){
-		int judg=0;
 		char sousuo[200],ret[200];
-		printf("                  请输入需要检索的图书名称:");
+		int judg=0,jud=0,judu=0;
+		printf("                当前为精确检索，输入plus进入模糊检索:") ;
+		char plus[200];
+		gets(plus);
+		if(strcmp(plus,"plus")==0)
+		{
+		    printf("                                请输入需要检索的信息:");
+		    gets(sousuo);
+		    printf("\n\n\n\n");
+		    findplus(fp,sousuo);
+		    judu=findn(q,ft,sousuo);
+		}
+		else{ 
+		printf("                  请输入需要检索的信息:");
 		gets(sousuo);
-		int jud=jie(q,ft,sousuo);
-		if(jud!=-1){
+		jud=jie(q,ft,sousuo);
+	}
+		if(jud!=-1||judu!=-1){
 		printf("\n\n");
 		printf("                  请输入需要借阅的图书编号:(取消借阅输入esc)");
 		char num [200];
@@ -88,7 +104,7 @@ int main ()
 		if(strcmp(num,"esc")!=0){ 
 		borrow(p,fx,num);
 		del(q,ft,num,ret);
-		yanzheng(l,ft,num,sousuo);
+		yanzheng(l,ft,num,ret);
 		judg++;
 	} 
 	}
@@ -124,11 +140,15 @@ int main ()
 		    rebook(fp,ft,backnum,name); 
 		    delnum(l,ft,backnum,name);
 		    printf("\n\n\n\n");
+		    judg++;
 		}else printf("\n\n\n                   归 还 信 息 错 误！\n\n\n\n");
 	}else printf("\n\n\n                   归 还 信 息 错 误！\n\n\n\n"); 
 	printf("                         退 出 请 输 入 0 !\n");
 	 char select[100];
-		getchar();
+		if(judg!=0)
+		{
+			getchar();
+		}
 	    gets(select);
 		if(select[0]=='0'){
 			goto start4;
@@ -138,7 +158,6 @@ int main ()
 	goto start4;
 	}
 }
-
 
 	 //教师操作 
 	else if (choose==0){
@@ -153,16 +172,16 @@ int main ()
 			printf("\n\n\n                         用户名或密码错误！！！\n\n\n\n");
 			goto start4; 
 	}
-	else printf("\n\n                                  登录成功！\n\n\n")	; 
+	else printf("\n\n                             登录成功！\n\n\n");
+	start2: 
 	int m=guanliduan();
 	if(m==1){
-		search(q,ft);
-		printf("\n\n\n\n");
+		choosefind(fp,q);
 		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
-			goto start4;
+			goto start2;
 		}
 		
 	}
@@ -175,7 +194,7 @@ int main ()
 	    getchar();
 	    gets(select);
 		if(select[0]=='0'){
-			goto start4;
+			goto start2;
 		}
 	}
 	else if(m==3)
@@ -199,30 +218,35 @@ int main ()
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
-			goto start4;
+			goto start2;
 		}
 	}
 	else if(m==4)
 	{
+		int jud=0;
 		char findname[200];
 		char findnum[200];
-		printf("请输入需要修改的图书名称：");
+		printf("请输入需要修改的图书信息：");
 		gets(findname);
 		int judg=jie(q,ft,findname); 
 		if(judg!=-1){
 		printf("请输入图书编号：");
 		gets(findnum);
-		change(q,ft,findname,findnum);
+		char ret1[200];
+		retname(q,ft,findnum,ret1);
+		change(q,ft,fp,ret1,findnum);
+		jud++;
 	}
 	 	printf("\n\n\n\n");
 		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
+		if(jud!=0){
+			getchar();
+		}
 	    gets(select);
 		if(select[0]=='0'){
-			goto start4;
+			goto start2;
 		}
-	
-
 }
 	else if(m==5)
 	{
@@ -232,7 +256,7 @@ int main ()
 		char select[100];
 	    gets(select);
 		if(select[0]=='0'){
-			goto start4;
+			goto start2;
 		}
 	}
 	else if(m==6)
@@ -347,7 +371,7 @@ char*  borrow(struct xuesheng *p,FILE *fp,char num[200])
 		char name[200];
 		scanf("%s",name);
 		char xueshengnum[200];
-		printf("                   请输入学号：") ;
+		printf("                      请输入学号：") ;
 		getchar();
 		gets(xueshengnum); 
 		fprintf(fp,"%s ",name);
@@ -519,8 +543,31 @@ int jie(struct tushu *q,FILE *fp,char name[200])
 	printf("书名        作者        编号\n"); 
 	s=(struct tushu*)malloc(sizeof(struct tushu));
 	while(end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
-		if(strcmp(s->name,name)==0){
+		if(strcmp(s->name,name)==0||strcmp(s->number,name)==0||strcmp(s->writer,name)==0){
 		printf("%-10s %-10s %-10s\n",s->name,s->writer,s->number);
+		jud++;
+	}
+		n->next=s;
+		n=s;
+	}
+	n->next=NULL;
+	fclose (fp);
+	if(jud==0){
+		return -1;
+	}
+}
+int findn(struct tushu *q,FILE *fp,char name[200])
+{
+	static char re[200];
+	int jud=0; 
+	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	struct tushu *n,*s;
+	n=q;
+	s=q->next;
+	char end;
+	s=(struct tushu*)malloc(sizeof(struct tushu));
+	while(end=fscanf(fp,"%s %s %s",s->name,s->writer,s->number),end!=EOF){
+		if(strcmp(s->name,name)==0||strcmp(s->number,name)==0||strcmp(s->writer,name)==0){
 		jud++;
 	}
 		n->next=s;
@@ -580,36 +627,42 @@ void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200])
 	}
 fclose(fp);
 }
-void change(struct tushu *p,FILE *ft,char findname[200],char findnum[200]) 
+void change(struct tushu *p,FILE *ft,FILE *fp,char findname[200],char findnum[200]) 
 {
 	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
-	struct tushu *n,*s,*m;
-	n=p;
+	fp=fopen("C:\\Users\\1\\Desktop\\总图书信息.txt","r+");
+	struct tushu *n1,*s1,*m1,*s2;
+	n1=p;
 	char end;
-	while(s=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(ft,"%s %s %s",s->name,s->writer,s->number ),end!=EOF){
-		if(strcmp(s->name,findname)==0&&strcmp(s->number,findnum)==0){
+	while(s1=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(ft,"%s %s %s",s1->name,s1->writer,s1->number ),end!=EOF){
+		if(strcmp(s1->name,findname)==0&&strcmp(s1->number,findnum)==0){
 			printf("请输入需要修改的图书信息：\n"); 
 			printf("图书名称为：");
-		    scanf("%s",s->name); 
+		    scanf("%s",s1->name); 
 		    printf("图书编号为：");
-		    scanf("%s",s->number); 
+		    scanf("%s",s1->number); 
 		    printf("图书作者为：");
-			scanf("%s",s->writer); 
+			scanf("%s",s1->writer); 
 		} 
-		n->next=s;
-		n=s;	
+		n1->next=s1;
+		n1=s1;	
 	}
-	n->next=NULL;
-	m=p->next;
+	n1->next=NULL;
+	m1=p->next;
 	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","w");
+	fp=fopen("C:\\Users\\1\\Desktop\\总图书信息.txt","w");
 	fclose(ft);
+	fclose(fp); 
 	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
-	while(m!=NULL)
+	fp=fopen("C:\\Users\\1\\Desktop\\总图书信息.txt","r+");
+	while(m1!=NULL)
 	{
-	    fprintf(ft,"%s %s %s\n",m->name,m->writer,m->number);
-		m=m->next;
+	    fprintf(ft,"%s %s %s\n",m1->name,m1->writer,m1->number);
+	    fprintf(fp,"%s %s %s\n",m1->name,m1->writer,m1->number); 
+		m1=m1->next;
 	}
-	fclose(ft); 
+	fclose(ft);
+	fclose(fp); 
 }
 int  denglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 {
@@ -628,3 +681,113 @@ int  denglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 	}
 	fclose(fp);	
 }
+void findplus (FILE *fp,char find[200])
+{
+	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	char name[200],num[200],writer[200],end;
+	int m;
+	m=strlen(find)/2;
+		printf("                  请选择查询的信息类型：1为文字，2为非文字");
+		char jude[200];
+		gets(jude);
+	while(end=fscanf(fp,"%s %s %s",name,writer,num),end!=EOF)
+	{
+		int namelen=strlen(name)/2;
+		int k=strlen(writer)/2;
+		int s=strlen(num);
+		int num1=0,num2=0,num3=0;	
+		 if(strcmp(jude,"1")==0){
+		for(int i=0;i<namelen*2-2;i=i+2)
+		{
+			for(int j=0;j<m*2;j+=2){
+			if ((name[i]==find[j])&&(name[i+2]==find[j+2])){
+						num1++;
+		}
+	}
+}
+if(num1==m-1)
+{
+	printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+}
+
+        	for(int i=0;i<k*2-2;i=i+2)
+		{
+			int c=0;
+			for(int j=0;j<m*2;j+=2){
+			if (writer[i]==find[j]&&writer[i+2]==find[j+2]){
+					num2++;
+		}
+	}
+}
+if(num2==m-1)
+{
+			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+}
+}else {
+        	for(int i=0;i<s-1;i++)
+		{
+			int c=0;
+			for(int j=0;j<m*2;j++){
+			if (num[i]==find[j]&&num[i+1]==find[j+1]){
+					num3++;
+		}
+	}
+}
+if(num3==m){
+		printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+}
+
+  }
+}
+	fclose(fp);
+}
+void choosefind(FILE *ft,struct tushu *q)
+{
+	
+	printf("\n\n        模糊选择请输入1，普通检索请输入2,遍历书库请输入3\n"); 
+	printf("                          直接输入回车退出 \n"); 
+	char num[200];
+	gets(num);
+	if(strcmp(num,"\n")!=0){
+	char name[200]; 
+	if(strcmp(num,"1")==0)
+	{
+			printf("                            请输入需要检索的信息：");
+			gets(name);
+		    printf("\n\n\n");
+		    findplus(ft,name);
+		    printf("\n\n\n");
+	}
+	else if(strcmp(num,"2")==0)
+	{
+			printf("                             请输入需要检索的信息：");
+			gets(name);
+			jie(q,ft,name); 
+		    printf("\n\n\n");
+	}
+	else if(strcmp(num,"3")==0)
+	{
+		search(q,ft);
+	 } 
+}
+}
+char* retname(struct tushu *q,FILE *fp,char name[200],char ret[200])
+{
+	static char re[200];
+	int jud=0; 
+	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	struct tushu *n,*s;
+	n=q;
+	char end;
+	while(s=(struct tushu*)malloc(sizeof(struct tushu)),end=fscanf(fp,"%s %s %s",&s->name,s->writer,s->number),end!=EOF){
+		if(strcmp(s->number,name)==0){
+			strcpy(ret,s->name);
+			break;
+	}
+		n->next=s;
+		n=s;
+	}
+	fclose (fp);
+}
+
+ 

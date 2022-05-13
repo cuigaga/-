@@ -85,6 +85,7 @@ int main ()
 		gets(plus);
 		if(strcmp(plus,"plus")==0)
 		{
+				printf("                                 \n\n请最少输入两个字节：\n");
 		    printf("                                请输入需要检索的信息:");
 		    gets(sousuo);
 		    printf("\n\n\n\n");
@@ -405,7 +406,13 @@ void addbook(struct tushu *q,FILE *fp,FILE *ft)
 	printf("                         请输入图书信息\n");
 	printf("               输入“ok”停止输入，是否继续输入？\n");
 	char a[200]; 
+	char end,panduan[200];
 	int i=0;
+	end=fscanf(fp,"%s",panduan);
+	//if(){
+	//fprintf(ft,"\n");
+	//fprintf(fp,"\n");
+//}
 	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
 	{
 		s=(struct tushu*)malloc(sizeof(struct tushu));
@@ -419,10 +426,8 @@ void addbook(struct tushu *q,FILE *fp,FILE *ft)
 		fprintf(ft,"%s ",s->writer);
 		printf("                        图书编号为："); 
 		scanf("%s",s->number);
-		fprintf(fp,"%s",s->number); 
-		fprintf(ft,"%s",s->number);
-		fprintf(fp,"\n");
-		fprintf(ft,"\n");
+		fprintf(fp,"%s\n",s->number); 
+		fprintf(ft,"%s\n",s->number);
 		n->next=s;
 		n=s;
 		printf("               输入“ok”停止输入，是否继续输入？\n");
@@ -687,15 +692,18 @@ void findplus (FILE *fp,char find[200])
 	char name[200],num[200],writer[200],end;
 	int m;
 	m=strlen(find)/2;
-		printf("                  请选择查询的信息类型：1为文字，2为非文字");
+	int m2=strlen(find);  
+		printf("  请选择查询的信息类型：1为中文(中文只可搜索书名与作者)，2为数字（只可搜索书编号），3为英文:"); 
 		char jude[200];
 		gets(jude);
 	while(end=fscanf(fp,"%s %s %s",name,writer,num),end!=EOF)
 	{
 		int namelen=strlen(name)/2;
+		int wordlen=strlen(name); 
 		int k=strlen(writer)/2;
+		int klen=strlen(writer);
 		int s=strlen(num);
-		int num1=0,num2=0,num3=0;	
+		int num1=0,num2=0,num3=0,num4=0,num5=0;	
 		 if(strcmp(jude,"1")==0){
 		for(int i=0;i<namelen*2-2;i=i+2)
 		{
@@ -723,19 +731,56 @@ if(num2==m-1)
 {
 			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
 }
-}else {
+
+
+//搜索字母 
+
+
+
+}else if(strcmp(jude,"2")==0) {
         	for(int i=0;i<s-1;i++)
 		{
 			int c=0;
-			for(int j=0;j<m*2;j++){
+			for(int j=0;j<m2-1;j++){
 			if (num[i]==find[j]&&num[i+1]==find[j+1]){
 					num3++;
 		}
 	}
 }
-if(num3==m){
+if(num3==m2-1){
 		printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
 }
+  }
+  else if(strcmp(jude,"3")==0){
+  		for(int i=0;i<wordlen-1;i=i+1)
+		{
+			for(int j=0;j<m2-1;j+=1){
+			if ((name[i]==find[j])&&(name[i+1]==find[j+1])){
+						num4++;
+		}
+	}
+}
+if(num4==m2-1)
+{
+	printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+}
+
+        	for(int i=0;i<klen-1;i=i+1)
+		{
+			int c=0;
+			for(int j=0;j<m2-1;j+=1){
+			if (writer[i]==find[j]&&writer[i+1]==find[j+1]){
+					num5++;
+		}
+	}
+}
+if(num5==m2-1)
+{
+			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+}
+
+
+
 
   }
 }
@@ -752,6 +797,7 @@ void choosefind(FILE *ft,struct tushu *q)
 	char name[200]; 
 	if(strcmp(num,"1")==0)
 	{
+			printf("                            请最少输入两个字符：\n");
 			printf("                            请输入需要检索的信息：");
 			gets(name);
 		    printf("\n\n\n");

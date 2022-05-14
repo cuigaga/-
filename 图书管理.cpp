@@ -43,10 +43,13 @@ int judge(FILE *ft ,char num[200],char name[200]);
 void delnum(struct jieyue *l,FILE *fp,char dell[200],char deln[200]);
 void change(struct tushu *p,FILE *ft,FILE *fp,char findname[200],char findnum[200]) ;
 int  denglu (struct jiaoshi *j,FILE *fp,char name[200],char pass[200] );
-void findplus (FILE *fp,char find[200]);
+int  xueshengdenglu (struct jiaoshi *j,FILE *fp,char name[200],char pass[200] );
+int findplus (FILE *fp,char find[200],int sum);
 void choosefind(FILE *ft,struct tushu *q);
 int findn(struct tushu *q,FILE *fp,char name[200]);
 char * retname(struct tushu *q,FILE *fp,char name[200],char ret[200]);
+int findstudent(struct xuesheng *p,FILE *fp,char name[200]);
+void zhuce(FILE *fp);
 //主函数 
 int main ()
 {	
@@ -71,11 +74,25 @@ int main ()
 	fclose(fp);
 	fp=fopen("C:\\Users\\1\\Desktop\\总图书信息.txt","a+");
 	fclose(fp); 
+	fp=fopen("C:\\Users\\1\\Desktop\\学生用户.txt","a+");
+	fclose(fp);
 	//创建文件，以免使用“r+”打开文件时报错 
 	start4:
 	int choose=chooseidentity();
 	//学生操作 
-	if(choose==1){                 
+	if(choose==1){       
+		printf("                            请输入用户名：");
+		char yong[200];
+		gets(yong);
+		printf("                              请输入密码：");
+		char pass[200];
+		gets(pass); 
+		int pan=xueshengdenglu(k,fp,yong,pass);
+		if(pan!=1){
+			printf("\n\n\n                         用户名或密码错误！！！\n\n\n\n");
+			goto start4; 
+	}
+	else printf("\n\n                             登录成功！\n\n\n");           
 	int n=xueshengduan();	
 	if(n==1){
 		char sousuo[200],ret[200];
@@ -85,11 +102,12 @@ int main ()
 		gets(plus);
 		if(strcmp(plus,"plus")==0)
 		{
-				printf("                                 \n\n请最少输入两个字节：\n");
-		    printf("                                请输入需要检索的信息:");
+				printf("               您已进入模糊检索 ！！ 请最少输入两个字节：\n");
+		    printf("                           请输入需要检索的信息:");
 		    gets(sousuo);
 		    printf("\n\n\n\n");
-		    findplus(fp,sousuo);
+		    int n;
+		    findplus(fp,sousuo,n);
 		    judu=findn(q,ft,sousuo);
 		}
 		else{ 
@@ -184,7 +202,6 @@ int main ()
 		if(select[0]=='0'){
 			goto start2;
 		}
-		
 	}
 	else if(m==2)
 	{
@@ -252,6 +269,10 @@ int main ()
 	else if(m==5)
 	{
 		printlist(p,fx);
+		printf("                             请输入查询的信息：");
+		char find[200];
+		gets(find); 
+		findstudent(p,fp,find);
 		printf("\n\n\n\n");
 		printf("                             退 出 请 输 入 0 !\n"); 
 		char select[100];
@@ -260,6 +281,11 @@ int main ()
 			goto start2;
 		}
 	}
+	else if(m==0)
+	{
+		zhuce(fp);
+		goto start2;
+	 } 
 	else if(m==6)
 	{
 		goto start4;
@@ -277,6 +303,7 @@ int main ()
 int  guanliduan()
 {
 	start3: 
+	printf("                            0.注册学生账号\n"); 
 	printf("                            1.查询图书\n"); 
 	printf("                            2.增加图书\n"); 
 	printf("                            3.删除图书\n");
@@ -285,6 +312,10 @@ int  guanliduan()
 	printf("                            6.退出\n"); 
 	char n[10];
 	gets(n);
+	if(n[0]=='0'){
+			printf("——————————————注册账号————————————\n"); 
+			return 0; 
+	}
 	if(n[0]=='1'){
 			printf("——————————————查询图书————————————\n"); 
 			return 1; 
@@ -409,10 +440,6 @@ void addbook(struct tushu *q,FILE *fp,FILE *ft)
 	char end,panduan[200];
 	int i=0;
 	end=fscanf(fp,"%s",panduan);
-	//if(){
-	//fprintf(ft,"\n");
-	//fprintf(fp,"\n");
-//}
 	while(scanf("%s",&a),a[0]!='o',a[1]!='k') 
 	{
 		s=(struct tushu*)malloc(sizeof(struct tushu));
@@ -686,8 +713,26 @@ int  denglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 	}
 	fclose(fp);	
 }
-void findplus (FILE *fp,char find[200])
+int  xueshengdenglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 {
+	struct jiaoshi *n,*s,*m;
+	fp=fopen("C:\\Users\\1\\Desktop\\学生用户.txt","r+");
+	n=k;
+	char end,xingming[200];
+	while(s=(struct jiaoshi*)malloc(sizeof(struct jiaoshi)),end=fscanf(fp,"%s %s %s",s->yonghu,s->password,xingming),end!=EOF)
+	{
+		if(strcmp(name,s->yonghu)==0&&strcmp(pass,s->password)==0)
+		{
+			return 1;
+		}
+		n->next=s;
+		n=s;
+	}
+	fclose(fp);	
+}
+int findplus (FILE *fp,char find[200],int sum)
+{
+	sum=0;
 	fp=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
 	char name[200],num[200],writer[200],end;
 	int m;
@@ -716,6 +761,7 @@ void findplus (FILE *fp,char find[200])
 if(num1==m-1)
 {
 	printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+	sum++;
 }
 
         	for(int i=0;i<k*2-2;i=i+2)
@@ -730,10 +776,11 @@ if(num1==m-1)
 if(num2==m-1)
 {
 			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+			sum++;
 }
 
 
-//搜索字母 
+//搜索数字 
 
 
 
@@ -749,6 +796,7 @@ if(num2==m-1)
 }
 if(num3==m2-1){
 		printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+		sum++;
 }
   }
   else if(strcmp(jude,"3")==0){
@@ -763,6 +811,7 @@ if(num3==m2-1){
 if(num4==m2-1)
 {
 	printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+	sum++;
 }
 
         	for(int i=0;i<klen-1;i=i+1)
@@ -777,14 +826,12 @@ if(num4==m2-1)
 if(num5==m2-1)
 {
 			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",name,writer,num);
+			sum++;
 }
-
-
-
-
   }
 }
 	fclose(fp);
+	return sum;
 }
 void choosefind(FILE *ft,struct tushu *q)
 {
@@ -801,7 +848,9 @@ void choosefind(FILE *ft,struct tushu *q)
 			printf("                            请输入需要检索的信息：");
 			gets(name);
 		    printf("\n\n\n");
-		    findplus(ft,name);
+		    int sum;
+			sum=findplus(ft,name,sum);
+		    printf("\n\n                          库存有%d本 ",sum);
 		    printf("\n\n\n");
 	}
 	else if(strcmp(num,"2")==0)
@@ -835,5 +884,41 @@ char* retname(struct tushu *q,FILE *fp,char name[200],char ret[200])
 	}
 	fclose (fp);
 }
-
- 
+int findstudent(struct xuesheng *q,FILE *fp,char name[200])
+{
+	static char re[200];
+	int jud=0; 
+	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
+	struct xuesheng *n,*s;
+	n=q;
+	s=q->next;
+	char end;
+	printf("学生        学号        编号\n"); 
+	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
+	while(end=fscanf(fp,"%s %s %s",&s->name,s->book,s->num),end!=EOF){
+		if(strcmp(s->book,name)==0||strcmp(s->name,name)==0||strcmp(s->num,name)==0){
+		printf("%-10s %-10s %-10s\n",s->name,s->book,s->num);
+		jud++;
+	}
+		n->next=s;
+		n=s;
+	}
+	n->next=NULL;
+	fclose (fp);
+	if(jud==0){
+		return -1;
+	}
+}
+void zhuce(FILE *fp){
+	fp=fopen("C:\\Users\\1\\Desktop\\学生用户.txt","a+");
+	char name[200],pass[200],xingming[200];
+	printf("学生的信息为：\n");
+	printf("学生的学号为：");
+	gets(name);
+	printf("学生的密码为："); 
+	gets(pass);
+	printf("学生的姓名为: ");
+	gets(xingming);
+	fprintf(fp,"%s %s %s\n",name,pass,xingming); 
+	fclose(fp);
+}

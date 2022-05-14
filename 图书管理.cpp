@@ -31,11 +31,11 @@ int  guanliduan();
 int  xueshengduan();
 void search(struct tushu *q,FILE *fp);
 int  chooseidentity ();
-char* borrow(struct xuesheng *p,FILE *fp,char num[200]);
+char* borrow(struct xuesheng *p,FILE *fp,char num[200],char xuename[200]);
 void printlist(struct xuesheng *p,FILE *fp);
 void addbook(struct tushu *q,FILE *fp,FILE *ft);
 char *del(struct tushu *q,FILE *fp,char del[100],char find[200]);
-int  reback(struct xuesheng *p,FILE *fp,char del[200],int jude );
+int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude );
 void rebook(FILE *fp,FILE *ft,char num[200],char name[200]);
 int jie(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200]);
@@ -82,12 +82,12 @@ int main ()
 	//学生操作 
 	if(choose==1){       
 		printf("                            请输入用户名：");
-		char yong[200];
-		gets(yong);
+		char xueyong[200];
+		gets(xueyong);
 		printf("                              请输入密码：");
 		char pass[200];
 		gets(pass); 
-		int pan=xueshengdenglu(k,fp,yong,pass);
+		int pan=xueshengdenglu(k,fp,xueyong,pass);
 		if(pan!=1){
 			printf("\n\n\n                         用户名或密码错误！！！\n\n\n\n");
 			goto start4; 
@@ -121,7 +121,7 @@ int main ()
 		char num [200];
 		gets(num);
 		if(strcmp(num,"esc")!=0){ 
-		borrow(p,fx,num);
+		borrow(p,fx,num,xueyong);
 		del(q,ft,num,ret);
 		yanzheng(l,ft,num,ret);
 		judg++;
@@ -142,11 +142,8 @@ int main ()
 	else if(n==2){
 		int judg=0;
 		char del[200],name[200]; 
-		printf("                         您的学号是："); 
-		scanf("%s",del);
 		printf("               需要归还的图书编号为：");
 		char backnum[200];
-		getchar();
 		gets(backnum); 
 		printf("               需要归还的图书名称为：");
 		gets(name); 
@@ -154,13 +151,13 @@ int main ()
 		n=judge(ft,backnum,name); 
 		if(n==1){
 			int jude=0;
-			jude=reback(p,fx,del,jude);
+			jude=reback(p,fx,backnum,jude);
 			if(jude!=0){
 		    rebook(fp,ft,backnum,name); 
 		    delnum(l,ft,backnum,name);
 		    printf("\n\n\n\n");
 		    judg++;
-		}else printf("\n\n\n                   归 还 信 息 错 误！\n\n\n\n");
+		}else printf("\n\n\n                   归 还 信 息 错 误！!\n\n\n\n");
 	}else printf("\n\n\n                   归 还 信 息 错 误！\n\n\n\n"); 
 	printf("                         退 出 请 输 入 0 !\n");
 	 char select[100];
@@ -396,18 +393,18 @@ start2:
    	goto start2;
    }
 } 
-char*  borrow(struct xuesheng *p,FILE *fp,char num[200])
+char*  borrow(struct xuesheng *p,FILE *fp,char num[200],char xuename[200])
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","a");
 		printf("                请输入借阅人姓名："); 
 		char name[200];
 		scanf("%s",name);
 		char xueshengnum[200];
-		printf("                      请输入学号：") ;
+	//	printf("                      请输入学号：") ;
 		getchar();
-		gets(xueshengnum); 
+	//	gets(xueshengnum); 
 		fprintf(fp,"%s ",name);
-		fprintf(fp,"%s ",xueshengnum);
+		fprintf(fp,"%s ",xuename);
 		fprintf(fp,"%s",num);
 		fprintf(fp,"\n");
 	fclose(fp);
@@ -507,23 +504,22 @@ void search(struct tushu *q,FILE *fp)
 	n->next=NULL;
 	fclose (fp);
 }
-int reback(struct xuesheng *p,FILE *fp,char del[200],int jude)
+int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude )
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	struct xuesheng *n,*s,*m;
 	char end;
 	n=p;
-	m=p;
-	s=(struct xuesheng*)malloc(sizeof(struct xuesheng));
-	while(end=fscanf(fp,"%s %s %s",&s->name,s->num,s->book),end!=EOF){
-		if(strcmp(s->num,del)!=0){
+	while(s=(struct xuesheng*)malloc(sizeof(struct xuesheng)),end=fscanf(fp,"%s %s %s",s->name,s->num,s->book),end!=EOF){
+		if(strcmp(s->book,num)!=0){
 		n->next=s;
 		n=s;
+		printf("%s %s %s\n",s->name,s->num,s->book);
 		}
 		else jude++;
 	}
 	n->next=NULL;
-	m=m->next;
+	m=p->next;
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","w");
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	while(m!=NULL)
@@ -630,6 +626,7 @@ int judge(FILE *ft ,char num[200],char name[200])
 			c++;
 		}
 	}
+	fclose(ft);
 	if(c==0){
 		return -1;
 	}

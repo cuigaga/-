@@ -26,7 +26,6 @@ struct jiaoshi{
 	struct jiaoshi *next;
 };
 //定义函数 
-//
 int  guanliduan();
 int  xueshengduan();
 void search(struct tushu *q,FILE *fp);
@@ -35,7 +34,8 @@ char* borrow(struct xuesheng *p,FILE *fp,char num[200],char xuename[200]);
 void printlist(struct xuesheng *p,FILE *fp);
 void addbook(struct tushu *q,FILE *fp,FILE *ft);
 char *del(struct tushu *q,FILE *fp,char del[100],char find[200]);
-int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude );
+int  reback(struct xuesheng *p,FILE *fp,char num[200],char yonghu[200],int jude );
+int  reback1(struct xuesheng *p,FILE *fp,char num[200],char yonghu[200],int jude );
 void rebook(FILE *fp,FILE *ft,char num[200],char name[200]);
 int jie(struct tushu *q,FILE *fp,char name[200]); 
 void yanzheng(struct jieyue *q,FILE *ft,char num[200],char name[200]);
@@ -50,6 +50,7 @@ int findn(struct tushu *q,FILE *fp,char name[200]);
 char * retname(struct tushu *q,FILE *fp,char name[200],char ret[200]);
 int findstudent(struct xuesheng *p,FILE *fp,char name[200]);
 void zhuce(FILE *fp);
+void insert (char *p,FILE *fp1);
 //主函数 
 int main ()
 {	
@@ -121,10 +122,13 @@ int main ()
 		char num [200];
 		gets(num);
 		if(strcmp(num,"esc")!=0){ 
+		int panduantushu=findn(q,fp,num);
+		if(panduantushu!=-1){
 		borrow(p,fx,num,xueyong);
 		del(q,ft,num,ret);
 		yanzheng(l,ft,num,ret);
 		judg++;
+	}else printf("                               请重新确认信息！ \n");	
 	} 
 	}
 	if(jud==-1){
@@ -151,8 +155,9 @@ int main ()
 		n=judge(ft,backnum,name); 
 		if(n==1){
 			int jude=0;
-			jude=reback(p,fx,backnum,jude);
+			jude=reback1(p,fx,backnum,xueyong,jude);
 			if(jude!=0){
+			reback(p,fx,backnum,xueyong,jude);
 		    rebook(fp,ft,backnum,name); 
 		    delnum(l,ft,backnum,name);
 		    printf("\n\n\n\n");
@@ -280,7 +285,19 @@ int main ()
 	}
 	else if(m==0)
 	{
+		printf("                 导入教师账户输入1，学生账户输入2:");
+		char get[200];
+		gets(get);
+		if(strcmp(get,"2")==0){
 		zhuce(fp);
+	}else if(strcmp(get,"1")==0){
+		printf("                      请输入绝对路径：");
+		char path[200];
+		gets(path); 
+		char *p;
+		p=path;
+		insert(p,fp);
+	}
 		goto start2;
 	 } 
 	else if(m==6)
@@ -400,9 +417,7 @@ char*  borrow(struct xuesheng *p,FILE *fp,char num[200],char xuename[200])
 		char name[200];
 		scanf("%s",name);
 		char xueshengnum[200];
-	//	printf("                      请输入学号：") ;
 		getchar();
-	//	gets(xueshengnum); 
 		fprintf(fp,"%s ",name);
 		fprintf(fp,"%s ",xuename);
 		fprintf(fp,"%s",num);
@@ -504,7 +519,7 @@ void search(struct tushu *q,FILE *fp)
 	n->next=NULL;
 	fclose (fp);
 }
-int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude )
+int  reback(struct xuesheng *p,FILE *fp,char num[200],char yonghu[200],int jude )
 {
 	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r+");
 	struct xuesheng *n,*s,*m;
@@ -514,9 +529,9 @@ int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude )
 		if(strcmp(s->book,num)!=0){
 		n->next=s;
 		n=s;
-		printf("%s %s %s\n",s->name,s->num,s->book);
-		}
-		else jude++;
+		printf("%s %s %s\n",s->name,s->book,s->num);
+	}else if(strcmp(s->book,num)==0&&strcmp(s->num,yonghu)==0)jude++;
+		
 	}
 	n->next=NULL;
 	m=p->next;
@@ -527,6 +542,23 @@ int  reback(struct xuesheng *p,FILE *fp,char num[200],int jude )
 	    fprintf(fp,"%s %s %s\n",m->name,m->num,m->book);
 		m=m->next;
 	}
+	fclose(fp);
+	return jude;
+}
+int  reback1(struct xuesheng *p,FILE *fp,char num[200],char yonghu[200],int jude )
+{
+	fp=fopen("C:\\Users\\1\\Desktop\\学生信息.txt","r");
+	struct xuesheng *n,*s,*m;
+	char end;
+	n=p;
+	while(s=(struct xuesheng*)malloc(sizeof(struct xuesheng)),end=fscanf(fp,"%s %s %s",s->name,s->num,s->book),end!=EOF){
+		if(strcmp(s->book,num)!=0){
+		n->next=s;
+		n=s;
+	}else if(strcmp(s->book,num)==0&&strcmp(s->num,yonghu)==0)jude++;
+		
+	}
+	n->next=NULL;
 	fclose(fp);
 	return jude;
 }
@@ -918,4 +950,17 @@ void zhuce(FILE *fp){
 	gets(xingming);
 	fprintf(fp,"%s %s %s\n",name,pass,xingming); 
 	fclose(fp);
+}
+void insert (char *p,FILE *fp1)   
+{
+	fp1=fopen("C:\\Users\\1\\Desktop\\教师信息.txt","a+");
+	FILE *fp2;
+	fp2=fopen(p,"r");
+	char name[200],pass[200],end;
+	while(end=fscanf(fp2,"%s %s",name,pass),end!=EOF)
+	{
+		fprintf(fp1,"%s %s\n",name,pass);
+	}
+	fclose(fp1);
+	fclose(fp2);
 }

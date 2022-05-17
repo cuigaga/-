@@ -326,7 +326,7 @@ int main ()
 int  guanliduan()
 {
 	start3: 
-	printf("                            0.注册学生账号\n"); 
+	printf("                            0.注册账号\n"); 
 	printf("                            1.查询图书\n"); 
 	printf("                            2.增加图书\n"); 
 	printf("                            3.删除图书\n");
@@ -746,16 +746,22 @@ int  denglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 	fp=fopen("C:\\Users\\1\\Desktop\\教师信息.txt","r+");
 	n=k;
 	char end;
+	int c=0;
 	while(s=(struct jiaoshi*)malloc(sizeof(struct jiaoshi)),end=fscanf(fp,"%s %s",s->yonghu,s->password),end!=EOF)
 	{
-		if(strcmp(name,s->yonghu)==0&&strcmp(pass,s->password)==0)
+		if((strcmp(name,s->yonghu)==0&&strcmp(pass,s->password)==0))
 		{
 			return 1;
 		}
+		c++;
 		n->next=s;
 		n=s;
 	}
 	fclose(fp);	
+	if(c==0&&(strcmp(name,"123456789")==0&&strcmp(pass,"000000")==0))
+	{
+		return 1;
+	}
 }
 int  xueshengdenglu (struct jiaoshi *k,FILE *fp,char name[200],char pass[200] )
 {
@@ -975,11 +981,11 @@ void insert (char *p,FILE *fp1)
 	char name[200],pass[200],end;
 	while(end=fscanf(fp2,"%s %s",name,pass),end!=EOF)
 	{
-		fprintf(fp1,"%s %s\n",name,pass);
+		fprintf(fp1,"% s %s\n",name,pass);
 	}
 	fclose(fp1);
 	fclose(fp2);
-	printf("          导入成功！\n\n\n");
+	printf("                               导入成功！\n\n\n");
 }
 void regret (char find[200])
 {
@@ -1010,6 +1016,7 @@ void regret (char find[200])
 			if(strcmp(j,"1")==0)
 			{
 				fprintf(ft,"%s %s %s\n",s->name,s->writer,s->number);
+				printf("                           导入成功！\n"); 
 			 } 
 		}
 	}

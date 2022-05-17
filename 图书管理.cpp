@@ -51,6 +51,7 @@ char * retname(struct tushu *q,FILE *fp,char name[200],char ret[200]);
 int findstudent(struct xuesheng *p,FILE *fp,char name[200]);
 void zhuce(FILE *fp);
 void insert (char *p,FILE *fp1);
+void regret (char find[200]);
 //主函数 
 int main ()
 {	
@@ -300,10 +301,18 @@ int main ()
 	}
 		goto start2;
 	 } 
-	else if(m==6)
+	else if(m==7)
 	{
 		goto start4;
 	}	
+	else if(m==6)
+	{
+		printf("                     请输入需要重新导入的图书信息：");
+		char findpp[200];
+		gets(findpp); 
+		regret(findpp);
+		goto start2;
+	}
 }
      else if(choose==-1){
      	printf("****************************欢 迎 下 次 使 用 ！****************************"); 
@@ -323,7 +332,8 @@ int  guanliduan()
 	printf("                            3.删除图书\n");
 	printf("                            4.查改图书\n");
 	printf("                            5.查询借阅记录\n"); 
-	printf("                            6.退出\n"); 
+	printf("                            6.重新导入图书\n"); 
+	printf("                            7.退出\n"); 
 	char n[10];
 	gets(n);
 	if(n[0]=='0'){
@@ -350,8 +360,13 @@ int  guanliduan()
 		    printf("—————————————查询借阅记录————————————\n");
 			return 5; 
 	}
-	else if(n[0]=='6'){
-	        return 6;
+	else if (n[0]=='6'){
+		    printf("—————————————重新导入图书————————————\n");
+			return 6; 
+	}
+	else if(n[0]=='7'){
+		
+	        return 7;
 	}
 	else {
 		printf("——————————————请重新输入————————————\n") ;
@@ -949,6 +964,7 @@ void zhuce(FILE *fp){
 	printf("学生的姓名为: ");
 	gets(xingming);
 	fprintf(fp,"%s %s %s\n",name,pass,xingming); 
+	printf("                            注册成功！\n\n\n\n"); 
 	fclose(fp);
 }
 void insert (char *p,FILE *fp1)   
@@ -963,4 +979,46 @@ void insert (char *p,FILE *fp1)
 	}
 	fclose(fp1);
 	fclose(fp2);
+	printf("          导入成功！\n\n\n");
+}
+void regret (char find[200])
+{
+	FILE *fp;
+	FILE *ft;
+	fp=fopen("C:\\Users\\1\\Desktop\\总图书信息.txt","r");
+	ft=fopen("C:\\Users\\1\\Desktop\\图书信息.txt","r+");
+	struct tushu *q,*n,*s,*m;
+	q=(struct tushu *)malloc(sizeof(struct tushu));
+	n=q;
+		int c=0;
+			while(m=(struct tushu *)malloc(sizeof(struct tushu)),fscanf(ft,"%s %s %s",m->name,m->writer,m->number)!=EOF)
+		{
+			if(strcmp(m->number,find)==0)
+			c++;
+		}
+		if(c==0){
+			int d=0;
+	while(s=(struct tushu *)malloc(sizeof(struct tushu)),fscanf(fp,"%s %s %s",s->name,s->writer,s->number)!=EOF)
+	{
+		if(strcmp(s->name,find)==0||strcmp(s->writer,find)==0||strcmp(s->number,find)==0&&c==0)
+		{
+			d++;
+			printf("书名：%-15s 作者：%-15s 编号：%-15s\n",s->name,s->writer,s->number);
+			printf("                 输入1重新导入此书（其他键则继续搜索下一本）：");
+			char j[200];
+			gets(j);
+			if(strcmp(j,"1")==0)
+			{
+				fprintf(ft,"%s %s %s\n",s->name,s->writer,s->number);
+			 } 
+		}
+	}
+	if(d==0)
+	{
+		 printf("                           未查找到该图书！！！\n"); 
+	}
+	printf("\n\n\n\n");
+}else printf("                        已经存在此图书！！！\n\n\n\n"); 
+	fclose(fp);
+	fclose(ft);
 }
